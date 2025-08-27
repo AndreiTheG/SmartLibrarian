@@ -4,7 +4,11 @@ def listen_to_user():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("🎤 Speak now...")
-        audio = recognizer.listen(source)
+        try:
+            audio = recognizer.listen(source, timeout=5)
+        except sr.WaitTimeoutError:
+            print("⚠️ Listening timed out. No speech detected.")
+            return ""
 
     try:
         text = recognizer.recognize_google(audio, language="en-US")

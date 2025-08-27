@@ -4,6 +4,16 @@ from backend.database.Database import SessionLocal
 from backend.model.SummaryBook import SummaryBook
 from sqlalchemy import or_
 
+def extract_keywords(query: str) -> list[str]:
+    stopwords = {
+        "i", "want", "a", "book", "about", "please", "find", "me", "can", "do", "you",
+        "show", "like", "know", "am", "is", "are", "recommend", "need"
+    }
+
+    words = query.lower().split()
+    keywords = [word for word in words if word not in stopwords and len(word) > 2]
+    return keywords
+
 def search_books_by_theme(query: str, n=3):
     query_embedding = get_embedding(query)
 
@@ -15,24 +25,38 @@ def search_books_by_theme(query: str, n=3):
     print("🔍 Rezultate găsite:", results['documents'][0])
     return results
 
-def search_books_by_theme_db(query: str, n:int=3) -> list[dict]:
+def search_books_by_theme_db(query: str, max_results:int=3) -> dict:
     db = SessionLocal()
-    # Căutare flexibilă în titlu sau rezumat
-    books = db.query(SummaryBook).filter(
+    keywords = extract_keywords(query)
+
+    if not keywords:
+        return {"documents": [[]], "metadatas": [[]]}
+
+    print("🔑 Cuvinte cheie:", keywords)
+
+    conditions = [
         or_(
-            SummaryBook.summary.ilike(f"%{query}%"),
-            SummaryBook.title.ilike(f"%{query}%")
+            SummaryBook.summary.ilike(f"%{word}%"),
+            SummaryBook.title.ilike(f"%{word}%")
         )
-    ).limit(n).all()
+        for word in keywords
+    ]
+
+    books = db.query(SummaryBook).filter(or_(*conditions)).limit(max_results).all()
     db.close()
 
-    if not books:
-        return []
+    print("🧱 Căutare SQL pe:", query)
+    print("📚 Rezultate SQL:", len(books))
+    for book in books:
+        print("→", book.title)
 
-    return [
-        {"title": book.title, "summary": book.summary}
-        for book in books
-    ]
+    if not books:
+        return {"documents": [[]], "metadatas": [[]]}  # compatibil cu generate_response()
+
+    documents = [book.summary for book in books]
+    metadatas = [{"title": book.title} for book in books]
+
+    return {"documents": [documents], "metadatas": [metadatas]}
 
 
 def get_summary_by_title(title:str):

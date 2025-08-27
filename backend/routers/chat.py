@@ -1,10 +1,12 @@
 from fastapi import APIRouter
 from backend.model.ChatRequest import ChatRequest
 from backend.chatbot.censored_lang_filter import is_inappropiate
-from backend.chatbot.text_generator import generate_response
-from backend.retriever.search import get_summary_by_title_from_db, search_books_by_theme_db
+from backend.chatbot.text_generator import generate_response, generate_response_from_db
+from backend.retriever.search import get_summary_by_title_from_db, search_books_by_theme, search_books_by_theme_db
 
 router = APIRouter()
+
+conversation_history = []
 
 @router.post("/chat")
 def chat(request: ChatRequest):
@@ -25,17 +27,24 @@ def chat(request: ChatRequest):
 		return {"response": summary}
 
 	# 4. Chat semantic + GPT (RAG)
-	results = search_books_by_theme_db(user_message)
+	results = search_books_by_theme(user_message)
 	if not results["documents"][0]:
 		print("⚠️ Nothing found in ChromaDB. Trying SQL fallback...")
 		results = search_books_by_theme_db(user_message)  # acum returnează același format
 		if not results["documents"][0]:
 			return {"response": "❌ No books found in ChromaDB or SQL database."}
 
-	gpt_reply = generate_response(user_message, results)
+	# Verificăm sursa: Chroma sau fallback SQL
+	if "documents" in results and results["documents"][0]:
+		gpt_reply = generate_response(user_message, results, conversation_history[-10:])  # Chroma
+	else:
+		gpt_reply = generate_response_from_db(user_message, results, conversation_history[-10:])  # SQL
 
 	# 5. Fallback dacă GPT nu a generat nimic
 	if not gpt_reply:
 		return {"response": "❌ I couldn't generate a response. Please try again."}
+
+	conversation_history.append({"role": "user", "content": user_message})
+	conversation_history.append({"role": "assistant", "content": gpt_reply})
 
 	return {"response": gpt_reply}
