@@ -6,10 +6,10 @@ from backend.routers.chat import router as chat_router
 
 app = FastAPI(title = "Smart Librarian")
 
-# ✅ CORS: permite comunicarea cu frontendul de pe localhost:5173
+# ✅ CORS: let communicating with frontend through localhost:5173
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # adaugă și altele dacă ai nevoie
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -5,6 +5,7 @@ from  ..voice.speech_to_text import listen_to_user
 from  ..voice.text_to_speech import speak_text
 from ..embedding.load_db_to_chroma import collection
 
+# Choose a communication option with Chatbot
 def show_menu():
     print("\n=== Smart Librarian Menu ===")
     print("1. Text → Text")
@@ -12,7 +13,7 @@ def show_menu():
     print("3. Voice → Text")
     print("0. Exit")
 
-
+# The CLI modes to communicate with Chatbot while is running
 def run_chatbot_cli_modes():
     while True:
         show_menu()

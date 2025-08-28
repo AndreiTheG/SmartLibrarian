@@ -4,6 +4,7 @@ from backend.database.Database import SessionLocal
 from backend.model.SummaryBook import SummaryBook
 from sqlalchemy import or_
 
+# Extract the keywords of the text
 def extract_keywords(query: str) -> list[str]:
     stopwords = {
         "i", "want", "a", "book", "about", "please", "find", "me", "can", "do", "you",
@@ -14,6 +15,7 @@ def extract_keywords(query: str) -> list[str]:
     keywords = [word for word in words if word not in stopwords and len(word) > 2]
     return keywords
 
+# Use it to recommend the books from ChromaDB based on the extracted keywords from input text
 def search_books_by_theme(query: str, n=3):
     query_embedding = get_embedding(query)
 
@@ -21,10 +23,11 @@ def search_books_by_theme(query: str, n=3):
         query_embeddings=[query_embedding],
         n_results=n
     )
-    print("📦 Număr vectori în colecție:", collection.count())
-    print("🔍 Rezultate găsite:", results['documents'][0])
+    print("📦 No. vectors in collection:", collection.count())
+    print("🔍 Found results:", results['documents'][0])
     return results
 
+# Use it to recommend the books from SQLite based on the extracted keywords from input text
 def search_books_by_theme_db(query: str, max_results:int=3) -> dict:
     db = SessionLocal()
     keywords = extract_keywords(query)
@@ -32,7 +35,7 @@ def search_books_by_theme_db(query: str, max_results:int=3) -> dict:
     if not keywords:
         return {"documents": [[]], "metadatas": [[]]}
 
-    print("🔑 Cuvinte cheie:", keywords)
+    print("🔑 Key words:", keywords)
 
     conditions = [
         or_(
@@ -45,13 +48,13 @@ def search_books_by_theme_db(query: str, max_results:int=3) -> dict:
     books = db.query(SummaryBook).filter(or_(*conditions)).limit(max_results).all()
     db.close()
 
-    print("🧱 Căutare SQL pe:", query)
-    print("📚 Rezultate SQL:", len(books))
+    print("🧱 SQL searching on:", query)
+    print("📚 SQL results:", len(books))
     for book in books:
         print("→", book.title)
 
     if not books:
-        return {"documents": [[]], "metadatas": [[]]}  # compatibil cu generate_response()
+        return {"documents": [[]], "metadatas": [[]]}
 
     documents = [book.summary for book in books]
     metadatas = [{"title": book.title} for book in books]
@@ -72,17 +75,6 @@ def get_summary_by_title(title:str):
             return f" *{book_title}*\n{summary}"
 
     return "No book with this title was found"
-
-# def get_summary_by_title(title: str) -> str:
-#     data = collection.get()
-#
-#     for i, meta in enumerate(data["metadatas"]):
-#         book_title = meta["title"]
-#         if title.lower() in book_title.lower():
-#             return f"📖 Summary for *{book_title}*:\n{data['documents'][i]}"
-#
-#     return "❌ No book with this title was found."
-
 
 
 def get_summary_by_title_from_db(title: str) -> str:

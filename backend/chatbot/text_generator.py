@@ -1,5 +1,6 @@
 import openai
 
+# Generate the response using the embedding vectors from ChromaDB
 def generate_response(user_input: str, results: dict, history: list = None) -> str:
     context = ""
     for doc, meta in zip(results['documents'][0], results['metadatas'][0]):
@@ -24,7 +25,7 @@ def generate_response(user_input: str, results: dict, history: list = None) -> s
 
     return response.choices[0].message.content.strip()
 
-
+# Generate the response with data from SQLite database
 def generate_response_from_db(user_input: str, db_results: dict, history: list = None) -> str:
     documents = db_results["documents"][0]
     metadatas = db_results["metadatas"][0]
