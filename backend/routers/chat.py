@@ -12,15 +12,15 @@ conversation_history = []
 def chat(request: ChatRequest):
 	user_message = request.message.strip()
 
-	# 1. Comandă de ieșire (opțional)
+	# 1. Exit command (opțional)
 	if user_message.lower() in {"exit", "quit"}:
 		return {"response": "👋 Goodbye!"}
 
-	# 2. Filtru de limbaj neadecvat
+	# 2. Inadequate language filter
 	if is_inappropiate(user_message):
 		return { "response": "🚫 Please use appropriate language. I'm here to help you with book recommendations." }
 
-	# 3. Comandă explicită pentru rezumat
+	# 3. Explicit command for the summary
 	if user_message.lower().startswith("show me the summary for"):
 		title = user_message[len("show me the summary for"):].strip()
 		summary = get_summary_by_title_from_db(title)
@@ -30,17 +30,17 @@ def chat(request: ChatRequest):
 	results = search_books_by_theme(user_message)
 	if not results["documents"][0]:
 		print("⚠️ Nothing found in ChromaDB. Trying SQL fallback...")
-		results = search_books_by_theme_db(user_message)  # acum returnează același format
+		results = search_books_by_theme_db(user_message)
 		if not results["documents"][0]:
 			return {"response": "❌ No books found in ChromaDB or SQL database."}
 
-	# Verificăm sursa: Chroma sau fallback SQL
+	# Verify the source: Chroma or fallback SQL
 	if "documents" in results and results["documents"][0]:
-		gpt_reply = generate_response(user_message, results, conversation_history[-10:])  # Chroma
+		gpt_reply = generate_response(user_message, results, conversation_history[-10:])
 	else:
-		gpt_reply = generate_response_from_db(user_message, results, conversation_history[-10:])  # SQL
+		gpt_reply = generate_response_from_db(user_message, results, conversation_history[-10:])
 
-	# 5. Fallback dacă GPT nu a generat nimic
+	# 5. Fallback if GPT didn't generate anything
 	if not gpt_reply:
 		return {"response": "❌ I couldn't generate a response. Please try again."}
 
