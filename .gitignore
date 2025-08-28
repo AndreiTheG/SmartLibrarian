@@ -1,0 +1,28 @@
+# IDE configs
+.idea/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings (optional, dacă colaborezi)
+.vscode/
+
+# macOS system files (dacă ești pe Mac)
+.DS_Store
+
+node_modules/
