@@ -1,4 +1,4 @@
-# 📚 Smart Librarian - DavaX
+# 📚 Smart Librarian - DavaX - AI with RAG & Tool Completion 
 
 Un chatbot inteligent cu rol de bibliotecar digital, care permite interacțiunea prin text, voce și LLMs, folosind o interfață modernă și backend scalabil.
 
@@ -10,7 +10,7 @@ Un chatbot inteligent cu rol de bibliotecar digital, care permite interacțiunea
 - **uvicorn** – Runs the FastAPI app as a local web server  
 - **pydantic** – Data validation & serialization  
 - **sqlalchemy** – Providing SQL and ORM (Object Relational Mapping) features for database access  
-- **chromadb** – Storing and querying the embeddings for LLM apps  
+- **chromadb** – Storing and querying the embeddings for LLM apps using RAG approach  
 - **openai** – Providing tools to interact with OpenAI API  
 - **speech_recognition** – Used for speech-to-text conversion  
 - **pyttsx3** – Used for text-to-speech conversion  
@@ -152,3 +152,6 @@ Accesează [http://localhost:5173](http://localhost:5173)
 - Rulează backend și frontend în paralel  
 - Reîncarcă baza Chroma dacă adaugi cărți noi  
 - Aplicația este ușor extensibilă pentru alte integrări LLM/UI
+
+Interfața aplicației:
+![Alt text](./Chatbot_interface.png)
