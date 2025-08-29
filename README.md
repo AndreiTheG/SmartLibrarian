@@ -153,5 +153,5 @@ Accesează [http://localhost:5173](http://localhost:5173)
 - Reîncarcă baza Chroma dacă adaugi cărți noi  
 - Aplicația este ușor extensibilă pentru alte integrări LLM/UI
 
-Interfața aplicației:
+## Interfața aplicației:
 ![Alt text](./Chatbot_interface.png)
